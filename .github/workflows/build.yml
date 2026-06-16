@@ -1,5 +1,9 @@
 name: make title images
 
+permissions:
+  contents: write
+
+
 on:
 
   schedule:
@@ -19,6 +23,8 @@ jobs:
 
     - name: checkout
       uses: actions/checkout@v4
+      with:
+        persist-credentials: true
 
 
     - name: python
@@ -44,11 +50,8 @@ jobs:
 
         git config user.email actions@github.com
 
-
         git add images
 
-
         git commit -m "update images" || true
-
 
         git push
