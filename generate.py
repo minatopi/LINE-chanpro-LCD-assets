@@ -14,7 +14,9 @@ JSON_URL = (
 
 OUT_DIR = "images"
 
-FONT_FILE = "NotoSansJP-VariableFont_wght.ttf"
+FONT_FILE = (
+    "NotoSansJP-VariableFont_wght.ttf"
+)
 
 WIDTH = 300
 HEIGHT = 60
@@ -30,7 +32,6 @@ os.makedirs(
 )
 
 
-# フォント
 font = ImageFont.truetype(
     FONT_FILE,
     22
@@ -43,22 +44,25 @@ font = ImageFont.truetype(
 
 print("JSON取得")
 
-r = requests.get(JSON_URL)
+r = requests.get(
+    JSON_URL,
+    timeout=10
+)
 
 r.raise_for_status()
 
 data = r.json()
 
 
-if len(data) == 0:
+if not data:
+    print("データなし")
     exit()
 
 
 # 最新3件
 items = data[-3:]
 
-
-# 古い→新しい
+# 新しい順
 items = items[::-1]
 
 
@@ -74,6 +78,22 @@ for index, item in enumerate(items):
     )
 
 
+    # ----------------------
+    # 16文字制限
+    # ----------------------
+
+    if len(title) > 16:
+
+        title = (
+            title[:16]
+            + "..."
+        )
+
+
+    # ----------------------
+    # 画像作成
+    # ----------------------
+
     img = Image.new(
         "RGB",
         (WIDTH, HEIGHT),
@@ -82,16 +102,6 @@ for index, item in enumerate(items):
 
 
     draw = ImageDraw.Draw(img)
-
-
-    # 長すぎる文字を切る
-    while (
-        draw.textlength(
-            title,
-            font=font
-        ) > WIDTH - 10
-    ):
-        title = title[:-1]
 
 
     draw.text(
@@ -109,7 +119,20 @@ for index, item in enumerate(items):
 
     img.save(filename)
 
+
     print(
         "作成:",
         filename
     )
+
+
+# 4枚目以降削除
+for i in range(4,20):
+
+    old = (
+        f"{OUT_DIR}/title{i}.png"
+    )
+
+    if os.path.exists(old):
+
+        os.remove(old)
