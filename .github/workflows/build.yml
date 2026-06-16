@@ -1,0 +1,54 @@
+name: make title images
+
+on:
+
+  schedule:
+    - cron: "*/15 * * * *"
+
+  workflow_dispatch:
+
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+
+    steps:
+
+    - name: checkout
+      uses: actions/checkout@v4
+
+
+    - name: python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+
+
+    - name: install
+      run: |
+        pip install pillow requests
+
+
+    - name: generate
+      run: |
+        python generate.py
+
+
+    - name: commit
+      run: |
+
+        git config user.name github-actions
+
+        git config user.email actions@github.com
+
+
+        git add images
+
+
+        git commit -m "update images" || true
+
+
+        git push
